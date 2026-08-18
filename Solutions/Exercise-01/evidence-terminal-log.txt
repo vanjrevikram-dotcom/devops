@@ -1,0 +1,80 @@
+
+$ minikube start --force --container-runtime=docker
+* minikube v1.39.0 on Ubuntu 26.04 (kvm/amd64)
+  - MINIKUBE_IN_STYLE=false
+! minikube skips various validations when --force is supplied; this may lead to unexpected behavior
+* Automatically selected the docker driver. Other choices: none, ssh
+* The "docker" driver should not be used with root privileges. If you wish to continue as root, use --force.
+* If you are running minikube within a VM, consider using --driver=none:
+*   https://minikube.sigs.k8s.io/docs/reference/drivers/none/
+* Using Docker driver with root privileges
+* Starting "minikube" primary control-plane node in "minikube" cluster
+* Pulling base image v0.0.51 ...
+* Downloading Kubernetes v1.37.0 preload ...
+* Configuring bridge CNI (Container Networking Interface) ...
+* Verifying Kubernetes components...
+  - Using image gcr.io/k8s-minikube/storage-provisioner:v5
+* Enabled addons: storage-provisioner, default-storageclass
+* Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
+[exit code: 0]
+[waiting for default service account and Ready nodes]
+node/minikube condition met
+
+$ kubectl run hello-k8s --image=nginx --port=80
+pod/hello-k8s created
+[exit code: 0]
+
+$ kubectl wait --for=condition=Ready pod/hello-k8s --timeout=180s
+pod/hello-k8s condition met
+[exit code: 0]
+
+$ kubectl get pods
+NAME        READY   STATUS    RESTARTS   AGE
+hello-k8s   1/1     Running   0          10s
+[exit code: 0]
+
+$ kubectl expose pod hello-k8s --type=NodePort --port=80
+service/hello-k8s exposed
+[exit code: 0]
+
+$ kubectl get svc hello-k8s
+NAME        TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+hello-k8s   NodePort   10.109.191.187   <none>        80:31332/TCP   0s
+[exit code: 0]
+
+$ minikube  service hello-k8s --url    (kept running in background)
+http://127.0.0.1:32997
+! Because you are using a Docker driver on linux, the terminal needs to be open to run it.
+
+$ curl -s http://127.0.0.1:32997 | head -n 25
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, nginx is successfully installed and working.
+Further configuration is required for the web server, reverse proxy, 
+API gateway, load balancer, content cache, or other features.</p>
+
+<p>For online documentation and support please refer to
+<a href="https://nginx.org/">nginx.org</a>.<br/>
+To engage with the community please visit
+<a href="https://community.nginx.org/">community.nginx.org</a>.<br/>
+For enterprise grade support, professional services, additional 
+security features and capabilities please refer to
+<a href="https://f5.com/nginx">f5.com/nginx</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+[exit code: 0]
+
+$ kubectl get pods -o wide
+NAME        READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
+hello-k8s   1/1     Running   0          13s   10.244.0.3   minikube   <none>           <none>
+[exit code: 0]
