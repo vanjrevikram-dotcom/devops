@@ -1,0 +1,194 @@
+
+$ minikube status
+minikube
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+
+[exit code: 0]
+
+$ minikube docker-env
+export DOCKER_TLS_VERIFY="1"
+export DOCKER_HOST="tcp://127.0.0.1:32769"
+export DOCKER_CERT_PATH="/root/.minikube/certs"
+export MINIKUBE_ACTIVE_DOCKERD="minikube"
+
+# To point your shell to minikube's docker-daemon, run:
+# eval $(minikube -p minikube docker-env)
+[exit code: 0]
+
+$ docker build -t flask-app .
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  8.704kB
+Step 1/5 : FROM python:3.8-slim
+3.8-slim: Pulling from library/python
+302e3ee49805: Pulling fs layer
+030d7bdc20a6: Pulling fs layer
+a3f1dfe736c5: Pulling fs layer
+3971691a3637: Pulling fs layer
+3971691a3637: Waiting
+030d7bdc20a6: Verifying Checksum
+030d7bdc20a6: Download complete
+3971691a3637: Verifying Checksum
+3971691a3637: Download complete
+302e3ee49805: Verifying Checksum
+302e3ee49805: Download complete
+a3f1dfe736c5: Verifying Checksum
+a3f1dfe736c5: Download complete
+302e3ee49805: Pull complete
+030d7bdc20a6: Pull complete
+a3f1dfe736c5: Pull complete
+3971691a3637: Pull complete
+Digest: sha256:1d52838af602b4b5a831beb13a0e4d073280665ea7be7f69ce2382f29c5a613f
+Status: Downloaded newer image for python:3.8-slim
+ ---> b5f62925bd0f
+Step 2/5 : WORKDIR /app
+ ---> Running in 7a72189f50a2
+ ---> Removed intermediate container 7a72189f50a2
+ ---> c324c26788f5
+Step 3/5 : COPY . /app
+ ---> 259c5818e4ab
+Step 4/5 : RUN pip install flask
+ ---> Running in 90f858643365
+Collecting flask
+  Downloading flask-3.0.3-py3-none-any.whl (101 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 101.7/101.7 kB 1.9 MB/s eta 0:00:00
+Collecting click>=8.1.3
+  Downloading click-8.1.8-py3-none-any.whl (98 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 98.2/98.2 kB 5.6 MB/s eta 0:00:00
+Collecting Werkzeug>=3.0.0
+  Downloading werkzeug-3.0.6-py3-none-any.whl (227 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 228.0/228.0 kB 6.7 MB/s eta 0:00:00
+Collecting blinker>=1.6.2
+  Downloading blinker-1.8.2-py3-none-any.whl (9.5 kB)
+Collecting importlib-metadata>=3.6.0
+  Downloading importlib_metadata-8.5.0-py3-none-any.whl (26 kB)
+Collecting Jinja2>=3.1.2
+  Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 134.9/134.9 kB 5.7 MB/s eta 0:00:00
+Collecting itsdangerous>=2.1.2
+  Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Collecting zipp>=3.20
+  Downloading zipp-3.20.2-py3-none-any.whl (9.2 kB)
+Collecting MarkupSafe>=2.0
+  Downloading MarkupSafe-2.1.5-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (26 kB)
+Installing collected packages: zipp, MarkupSafe, itsdangerous, click, blinker, Werkzeug, Jinja2, importlib-metadata, flask
+Successfully installed Jinja2-3.1.6 MarkupSafe-2.1.5 Werkzeug-3.0.6 blinker-1.8.2 click-8.1.8 flask-3.0.3 importlib-metadata-8.5.0 itsdangerous-2.2.0 zipp-3.20.2
+[91mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+[0m[91m
+[notice] A new release of pip is available: 23.0.1 -> 25.0.1
+[notice] To update, run: pip install --upgrade pip
+[0m ---> Removed intermediate container 90f858643365
+ ---> 7d7488b187c9
+Step 5/5 : CMD ["python", "app.py"]
+ ---> Running in b0ca7bbf19e0
+ ---> Removed intermediate container b0ca7bbf19e0
+ ---> 2c73145b1429
+Successfully built 2c73145b1429
+Successfully tagged flask-app:latest
+[exit code: 0]
+
+$ docker images | grep flask-app
+WARNING: This output is designed for human readability. For machine-readable output, please use --format.
+flask-app:latest                                  2c73145b1429        136MB             0B        
+[exit code: 0]
+
+$ kubectl apply -f flask-deployment-step5.yaml
+deployment.apps/flask-app created
+[exit code: 0]
+
+$ kubectl rollout status deployment/flask-app --timeout=180s
+Waiting for deployment "flask-app" rollout to finish: 0 of 1 updated replicas are available...
+deployment "flask-app" successfully rolled out
+[exit code: 0]
+
+$ kubectl get deployments
+NAME        READY   UP-TO-DATE   AVAILABLE   AGE
+flask-app   1/1     1            1           1s
+[exit code: 0]
+
+$ kubectl get pods -l app=flask-app
+NAME                         READY   STATUS    RESTARTS   AGE
+flask-app-59f7cdccb4-cs6g6   1/1     Running   0          1s
+[exit code: 0]
+
+$ kubectl describe deployment flask-app
+Name:                   flask-app
+Namespace:              default
+CreationTimestamp:      Sun, 18 Oct 2026 12:51:04 +0000
+Labels:                 <none>
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=flask-app
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=flask-app
+  Containers:
+   flask-app:
+    Image:         flask-app:latest
+    Port:          15000/TCP
+    Host Port:     0/TCP
+    Environment:   <none>
+    Mounts:        <none>
+  Volumes:         <none>
+  Node-Selectors:  <none>
+  Tolerations:     <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   flask-app-59f7cdccb4 (1/1 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  1s    deployment-controller  Scaled up replica set flask-app-59f7cdccb4 from 0 to 1
+[exit code: 0]
+
+$ kubectl logs flask-app-59f7cdccb4-cs6g6
+ * Serving Flask app 'app'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:15000
+ * Running on http://10.244.0.4:15000
+[33mPress CTRL+C to quit[0m
+[exit code: 0]
+
+$ kubectl get services
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+hello-k8s    NodePort    10.109.191.187   <none>        80:31332/TCP   38s
+kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP        57s
+[exit code: 0]
+
+$ curl -sS --max-time 5 http://127.0.0.1:15000
+curl: (7) Failed to connect to 127.0.0.1 port 15000 after 0 ms: Could not connect to server
+[exit code: 7]
+
+$ kubectl apply -f flask-deployment.yaml
+deployment.apps/flask-app unchanged
+service/flask-app-service created
+[exit code: 0]
+
+$ kubectl get services
+NAME                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)           AGE
+flask-app-service   NodePort    10.100.103.188   <none>        15000:32259/TCP   0s
+hello-k8s           NodePort    10.109.191.187   <none>        80:31332/TCP      38s
+kubernetes          ClusterIP   10.96.0.1        <none>        443/TCP           57s
+[exit code: 0]
+
+$ minikube  service flask-app-service --url    (kept running in background)
+http://127.0.0.1:41945
+! Because you are using a Docker driver on linux, the terminal needs to be open to run it.
+
+$ curl -s http://127.0.0.1:41945; echo
+Hello from Flask on Kubernetes!
+[exit code: 0]
