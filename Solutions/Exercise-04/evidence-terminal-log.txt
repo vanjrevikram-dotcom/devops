@@ -1,0 +1,249 @@
+
+$ docker network create --driver bridge my-bridge-net
+a11f1fb66224841d9a1fbcbaafd13f2d8e5331ca696f970382b88af50d1a1e24
+[exit code: 0]
+
+$ docker network ls
+NETWORK ID     NAME            DRIVER    SCOPE
+7558a642713c   bridge          bridge    local
+784491ce4389   host            host      local
+3ef66ccdd882   minikube        bridge    local
+a11f1fb66224   my-bridge-net   bridge    local
+d063aa8f8af7   none            null      local
+[exit code: 0]
+
+$ docker network inspect my-bridge-net
+[
+    {
+        "Name": "my-bridge-net",
+        "Id": "a11f1fb66224841d9a1fbcbaafd13f2d8e5331ca696f970382b88af50d1a1e24",
+        "Created": "2026-10-18T12:57:20.707724879Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "IPRange": "",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Options": {},
+        "Labels": {},
+        "Containers": {},
+        "Status": {
+            "IPAM": {
+                "Subnets": {
+                    "172.18.0.0/16": {
+                        "IPsInUse": 3,
+                        "DynamicIPsAvailable": 65533
+                    }
+                }
+            }
+        }
+    }
+]
+[exit code: 0]
+
+$ docker build -t flask-api .
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  19.46kB
+Step 1/8 : FROM python:3.9-slim
+ ---> 2d97f6910b16
+Step 2/8 : WORKDIR /app
+ ---> Using cache
+ ---> a32c1158a421
+Step 3/8 : RUN apt-get update && apt-get install -y iputils-ping && rm -rf /var/lib/apt/lists/*
+ ---> Running in e6b9367c674f
+Get:1 http://deb.debian.org/debian trixie InRelease [140 kB]
+Get:2 http://deb.debian.org/debian trixie-updates InRelease [47.3 kB]
+Get:3 http://deb.debian.org/debian-security trixie-security InRelease [43.4 kB]
+Get:4 http://deb.debian.org/debian trixie/main amd64 Packages [9678 kB]
+Get:5 http://deb.debian.org/debian trixie-updates/main amd64 Packages [4412 B]
+Get:6 http://deb.debian.org/debian-security trixie-security/main amd64 Packages [269 kB]
+Fetched 10.2 MB in 2s (5344 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  libidn2-0 libunistring5 linux-sysctl-defaults
+The following NEW packages will be installed:
+  iputils-ping libidn2-0 libunistring5 linux-sysctl-defaults
+0 upgraded, 4 newly installed, 0 to remove and 30 not upgraded.
+Need to get 643 kB of archives.
+After this operation, 2810 kB of additional disk space will be used.
+Get:1 http://deb.debian.org/debian trixie/main amd64 libunistring5 amd64 1.3-2 [477 kB]
+Get:2 http://deb.debian.org/debian trixie/main amd64 libidn2-0 amd64 2.3.8-2 [109 kB]
+Get:3 http://deb.debian.org/debian trixie/main amd64 iputils-ping amd64 3:20240905-3 [51.2 kB]
+Get:4 http://deb.debian.org/debian trixie/main amd64 linux-sysctl-defaults all 4.12.1 [5724 B]
+[91mdebconf: unable to initialize frontend: Dialog
+debconf: (TERM is not set, so the dialog frontend is not usable.)
+debconf: falling back to frontend: Readline
+[0m[91mdebconf: unable to initialize frontend: Readline
+debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC entries checked: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.40.1 /usr/local/share/perl/5.40.1 /usr/lib/x86_64-linux-gnu/perl5/5.40 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl-base /usr/lib/x86_64-linux-gnu/perl/5.40 /usr/share/perl/5.40 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 8, <STDIN> line 4.)
+debconf: falling back to frontend: Teletype
+[0m[91mdebconf: unable to initialize frontend: Teletype
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Noninteractive
+[0mFetched 643 kB in 0s (3996 kB/s)
+Selecting previously unselected package libunistring5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 5644 files and directories currently installed.)
+Preparing to unpack .../libunistring5_1.3-2_amd64.deb ...
+Unpacking libunistring5:amd64 (1.3-2) ...
+Selecting previously unselected package libidn2-0:amd64.
+Preparing to unpack .../libidn2-0_2.3.8-2_amd64.deb ...
+Unpacking libidn2-0:amd64 (2.3.8-2) ...
+Selecting previously unselected package iputils-ping.
+Preparing to unpack .../iputils-ping_3%3a20240905-3_amd64.deb ...
+Unpacking iputils-ping (3:20240905-3) ...
+Selecting previously unselected package linux-sysctl-defaults.
+Preparing to unpack .../linux-sysctl-defaults_4.12.1_all.deb ...
+Unpacking linux-sysctl-defaults (4.12.1) ...
+Setting up linux-sysctl-defaults (4.12.1) ...
+Setting up libunistring5:amd64 (1.3-2) ...
+Setting up libidn2-0:amd64 (2.3.8-2) ...
+Setting up iputils-ping (3:20240905-3) ...
+Processing triggers for libc-bin (2.41-12) ...
+ ---> Removed intermediate container e6b9367c674f
+ ---> 4ca67180136b
+Step 4/8 : COPY requirements.txt .
+ ---> a0a15665d672
+Step 5/8 : COPY app.py .
+ ---> 4381babba55a
+Step 6/8 : RUN pip install --no-cache-dir -r requirements.txt
+ ---> Running in c0ad6557fd4b
+Collecting Flask==2.0.1
+  Downloading Flask-2.0.1-py3-none-any.whl (94 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 94.8/94.8 kB 1.8 MB/s eta 0:00:00
+Collecting Werkzeug==2.2.3
+  Downloading Werkzeug-2.2.3-py3-none-any.whl (233 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 233.6/233.6 kB 5.7 MB/s eta 0:00:00
+Collecting itsdangerous>=2.0
+  Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Collecting click>=7.1.2
+  Downloading click-8.1.8-py3-none-any.whl (98 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 98.2/98.2 kB 37.5 MB/s eta 0:00:00
+Collecting Jinja2>=3.0
+  Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 134.9/134.9 kB 19.2 MB/s eta 0:00:00
+Collecting MarkupSafe>=2.1.1
+  Downloading markupsafe-3.0.4-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (20 kB)
+Installing collected packages: MarkupSafe, itsdangerous, click, Werkzeug, Jinja2, Flask
+Successfully installed Flask-2.0.1 Jinja2-3.1.6 MarkupSafe-3.0.4 Werkzeug-2.2.3 click-8.1.8 itsdangerous-2.2.0
+[91mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+[0m[91m
+[notice] A new release of pip is available: 23.0.1 -> 26.0.1
+[notice] To update, run: pip install --upgrade pip
+[0m ---> Removed intermediate container c0ad6557fd4b
+ ---> 5f7033c51817
+Step 7/8 : EXPOSE 5001
+ ---> Running in d9df8eddf338
+ ---> Removed intermediate container d9df8eddf338
+ ---> dd70e67331b3
+Step 8/8 : CMD ["python", "app.py"]
+ ---> Running in 38e7a78f3696
+ ---> Removed intermediate container 38e7a78f3696
+ ---> 2da3ff9ea45d
+Successfully built 2da3ff9ea45d
+Successfully tagged flask-api:latest
+[exit code: 0]
+
+$ docker run -d --name mysql --net=my-bridge-net -e MYSQL_ROOT_PASSWORD=labpass mysql:latest
+83abe0e8a31f86c91b4fb33482742c3ad13655a92018bc1943a2e0883979f1a0
+[exit code: 0]
+
+$ docker run -d --name redis --net=my-bridge-net redis:latest
+fe0863e3f6b34f59d85a3ae032e716006ed7bc8864b6bdac5b2d7073eafebf72
+[exit code: 0]
+
+$ docker run -d --name flask --net=my-bridge-net -p 5001:5001 flask-api
+55336dc210babc2bdb59f5f4c95206bf7dbfbb56e25e8f87ba465b4429011797
+[exit code: 0]
+
+$ docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}'
+NAMES     IMAGE          STATUS          PORTS
+flask     flask-api      Up 15 seconds   0.0.0.0:5001->5001/tcp, [::]:5001->5001/tcp
+redis     redis:latest   Up 15 seconds   6379/tcp
+mysql     mysql:latest   Up 16 seconds   3306/tcp, 33060/tcp
+[exit code: 0]
+
+$ docker logs flask
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5001
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 122-932-838
+[exit code: 0]
+
+$ docker network inspect my-bridge-net --format '{{range .Containers}}{{.Name}} -> {{.IPv4Address}}{{println}}{{end}}'
+flask -> 172.18.0.4/16
+mysql -> 172.18.0.2/16
+redis -> 172.18.0.3/16
+
+[exit code: 0]
+
+$ docker exec flask ping -c 3 mysql
+PING mysql (172.18.0.2) 56(84) bytes of data.
+64 bytes from mysql.my-bridge-net (172.18.0.2): icmp_seq=1 ttl=64 time=0.222 ms
+64 bytes from mysql.my-bridge-net (172.18.0.2): icmp_seq=2 ttl=64 time=0.139 ms
+64 bytes from mysql.my-bridge-net (172.18.0.2): icmp_seq=3 ttl=64 time=0.208 ms
+
+--- mysql ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2049ms
+rtt min/avg/max/mdev = 0.139/0.189/0.222/0.036 ms
+[exit code: 0]
+
+$ docker exec flask ping -c 3 redis
+PING redis (172.18.0.3) 56(84) bytes of data.
+64 bytes from redis.my-bridge-net (172.18.0.3): icmp_seq=1 ttl=64 time=0.115 ms
+64 bytes from redis.my-bridge-net (172.18.0.3): icmp_seq=2 ttl=64 time=0.220 ms
+64 bytes from redis.my-bridge-net (172.18.0.3): icmp_seq=3 ttl=64 time=0.119 ms
+
+--- redis ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2028ms
+rtt min/avg/max/mdev = 0.115/0.151/0.220/0.048 ms
+[exit code: 0]
+
+$ docker exec flask python -c "import urllib.request;print(urllib.request.urlopen('http://localhost:5001/about').read().decode())"
+{
+  "description": "This is a simple REST API built with Flask.", 
+  "name": "Simple REST API", 
+  "version": "1.0"
+}
+
+[exit code: 0]
+
+$ docker stop mysql redis flask && docker rm mysql redis flask
+mysql
+redis
+flask
+mysql
+redis
+flask
+[exit code: 0]
+
+$ docker network rm my-bridge-net
+my-bridge-net
+[exit code: 0]

@@ -1,0 +1,256 @@
+
+$ docker network create --driver bridge my-bridge-net
+ac349a6976e8c6e4546e69564cb5f45de2041a980176e9f269ac2054afde71f6
+[exit code: 0]
+
+$ docker network ls
+NETWORK ID     NAME            DRIVER    SCOPE
+5b02aa04443d   bridge          bridge    local
+784491ce4389   host            host      local
+3ef66ccdd882   minikube        bridge    local
+ac349a6976e8   my-bridge-net   bridge    local
+d063aa8f8af7   none            null      local
+[exit code: 0]
+
+$ docker network inspect my-bridge-net
+[
+    {
+        "Name": "my-bridge-net",
+        "Id": "ac349a6976e8c6e4546e69564cb5f45de2041a980176e9f269ac2054afde71f6",
+        "Created": "2026-10-18T12:55:09.55440457Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "IPRange": "",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Options": {},
+        "Labels": {},
+        "Containers": {},
+        "Status": {
+            "IPAM": {
+                "Subnets": {
+                    "172.18.0.0/16": {
+                        "IPsInUse": 3,
+                        "DynamicIPsAvailable": 65533
+                    }
+                }
+            }
+        }
+    }
+]
+[exit code: 0]
+
+$ docker build -t flask-api .
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  8.704kB
+Step 1/7 : FROM python:3.9-slim
+3.9-slim: Pulling from library/python
+ea56f685404a: Pulling fs layer
+fc7443084902: Pulling fs layer
+38513bd72563: Pulling fs layer
+b3ec39b36ae8: Pulling fs layer
+ea56f685404a: Download complete
+b3ec39b36ae8: Download complete
+a5e5b1b19090: Download complete
+967a6079ce08: Download complete
+fc7443084902: Download complete
+38513bd72563: Download complete
+38513bd72563: Pull complete
+b3ec39b36ae8: Pull complete
+fc7443084902: Pull complete
+ea56f685404a: Pull complete
+Digest: sha256:2d97f6910b16bd338d3060f261f53f144965f755599aab1acda1e13cf1731b1b
+Status: Downloaded newer image for python:3.9-slim
+ ---> 2d97f6910b16
+Step 2/7 : WORKDIR /app
+ ---> Running in 61655b7dcdae
+ ---> Removed intermediate container 61655b7dcdae
+ ---> a32c1158a421
+Step 3/7 : COPY requirements.txt .
+ ---> 21f245818444
+Step 4/7 : COPY app.py .
+ ---> 7bd0c0991d2e
+Step 5/7 : RUN pip install --no-cache-dir -r requirements.txt
+ ---> Running in 5007b5b9dcd2
+Collecting Flask==2.0.1
+  Downloading Flask-2.0.1-py3-none-any.whl (94 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 94.8/94.8 kB 1.8 MB/s eta 0:00:00
+Collecting click>=7.1.2
+  Downloading click-8.1.8-py3-none-any.whl (98 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 98.2/98.2 kB 8.5 MB/s eta 0:00:00
+Collecting Jinja2>=3.0
+  Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 134.9/134.9 kB 15.2 MB/s eta 0:00:00
+Collecting Werkzeug>=2.0
+  Downloading werkzeug-3.1.9-py3-none-any.whl (228 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 228.7/228.7 kB 14.3 MB/s eta 0:00:00
+Collecting itsdangerous>=2.0
+  Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Collecting MarkupSafe>=2.0
+  Downloading markupsafe-3.0.4-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (20 kB)
+Installing collected packages: MarkupSafe, itsdangerous, click, Werkzeug, Jinja2, Flask
+Successfully installed Flask-2.0.1 Jinja2-3.1.6 MarkupSafe-3.0.4 Werkzeug-3.1.9 click-8.1.8 itsdangerous-2.2.0
+[91mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+[0m[91m
+[notice] A new release of pip is available: 23.0.1 -> 26.0.1
+[notice] To update, run: pip install --upgrade pip
+[0m ---> Removed intermediate container 5007b5b9dcd2
+ ---> 7eba56fedbd2
+Step 6/7 : EXPOSE 5001
+ ---> Running in ab87ecc14481
+ ---> Removed intermediate container ab87ecc14481
+ ---> 36780cc7266e
+Step 7/7 : CMD ["python", "app.py"]
+ ---> Running in 4387112f7f35
+ ---> Removed intermediate container 4387112f7f35
+ ---> 84f6faab98fd
+Successfully built 84f6faab98fd
+Successfully tagged flask-api:latest
+[exit code: 0]
+
+$ docker run -d --name mysql --net=my-bridge-net -e MYSQL_ROOT_PASSWORD=labpass mysql:latest
+Unable to find image 'mysql:latest' locally
+latest: Pulling from library/mysql
+514ea420f997: Pulling fs layer
+e896da32f635: Pulling fs layer
+a798338f8ea0: Pulling fs layer
+ecb59e1f4a8f: Pulling fs layer
+d41b77484029: Pulling fs layer
+029a2ef99eb4: Pulling fs layer
+c233331fdce7: Pulling fs layer
+d057682167d5: Pulling fs layer
+d6526c3b0b71: Pulling fs layer
+1a710d5def08: Pulling fs layer
+1a710d5def08: Download complete
+d41b77484029: Download complete
+d057682167d5: Download complete
+514ea420f997: Download complete
+ecb59e1f4a8f: Download complete
+029a2ef99eb4: Download complete
+9e6faf632f7d: Download complete
+a798338f8ea0: Download complete
+2659fa5447a2: Download complete
+e896da32f635: Download complete
+029a2ef99eb4: Pull complete
+e896da32f635: Pull complete
+a798338f8ea0: Pull complete
+d41b77484029: Pull complete
+d057682167d5: Pull complete
+ecb59e1f4a8f: Pull complete
+d6526c3b0b71: Download complete
+c233331fdce7: Download complete
+c233331fdce7: Pull complete
+1a710d5def08: Pull complete
+d6526c3b0b71: Pull complete
+514ea420f997: Pull complete
+Digest: sha256:893418c8a7a34c60d2d961cc30ef136095da141478562ed2101ae3f5faba9c3f
+Status: Downloaded newer image for mysql:latest
+96205192a2f57cd52d86c1745b648d366c1b6291452df0deb54f83e447b82159
+[exit code: 0]
+
+$ docker run -d --name redis --net=my-bridge-net redis:latest
+Unable to find image 'redis:latest' locally
+latest: Pulling from library/redis
+0a3621ec1dd4: Pulling fs layer
+4ac6ba6b019e: Pulling fs layer
+ecc510c1e359: Pulling fs layer
+c30201c9cd3c: Pulling fs layer
+f55e02ea8cde: Pulling fs layer
+dc611c1ed116: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+4f4fb700ef54: Download complete
+0a3621ec1dd4: Download complete
+dc611c1ed116: Download complete
+f55e02ea8cde: Download complete
+4ac6ba6b019e: Download complete
+e6c2a7c7d56e: Download complete
+edf7d95c5d27: Download complete
+c30201c9cd3c: Download complete
+ecc510c1e359: Download complete
+ecc510c1e359: Pull complete
+f55e02ea8cde: Pull complete
+4ac6ba6b019e: Pull complete
+c30201c9cd3c: Pull complete
+dc611c1ed116: Pull complete
+4f4fb700ef54: Pull complete
+0a3621ec1dd4: Pull complete
+Digest: sha256:2c2dff791878316e3b083188be0d578423b24813cdda5de0e80ea4f7b3e6bfd6
+Status: Downloaded newer image for redis:latest
+69406cfe8edb6f27c256f33908dac43a3ae18c8e617f97050c02656b93527428
+[exit code: 0]
+
+$ docker run -d --name flask --net=my-bridge-net -p 5001:5001 flask-api
+9de22b0f04420f80ff428a004fd059ce4e9f0cb2ee5a7ab34aaf13efd87ddfb5
+[exit code: 0]
+
+$ docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}'
+NAMES     IMAGE          STATUS          PORTS
+redis     redis:latest   Up 15 seconds   6379/tcp
+mysql     mysql:latest   Up 25 seconds   3306/tcp, 33060/tcp
+[exit code: 0]
+
+$ docker logs flask
+Traceback (most recent call last):
+  File "/app/app.py", line 1, in <module>
+    from flask import Flask, jsonify
+  File "/usr/local/lib/python3.9/site-packages/flask/__init__.py", line 7, in <module>
+    from .app import Flask as Flask
+  File "/usr/local/lib/python3.9/site-packages/flask/app.py", line 28, in <module>
+    from . import cli
+  File "/usr/local/lib/python3.9/site-packages/flask/cli.py", line 18, in <module>
+    from .helpers import get_debug_flag
+  File "/usr/local/lib/python3.9/site-packages/flask/helpers.py", line 16, in <module>
+    from werkzeug.urls import url_quote
+ImportError: cannot import name 'url_quote' from 'werkzeug.urls' (/usr/local/lib/python3.9/site-packages/werkzeug/urls.py)
+[exit code: 0]
+
+$ docker network inspect my-bridge-net --format '{{range .Containers}}{{.Name}} -> {{.IPv4Address}}{{println}}{{end}}'
+redis -> 172.18.0.3/16
+mysql -> 172.18.0.2/16
+
+[exit code: 0]
+
+$ docker exec flask ping -c 3 mysql
+Error response from daemon: container 9de22b0f04420f80ff428a004fd059ce4e9f0cb2ee5a7ab34aaf13efd87ddfb5 is not running
+[exit code: 1]
+
+$ docker exec flask ping -c 3 redis
+Error response from daemon: container 9de22b0f04420f80ff428a004fd059ce4e9f0cb2ee5a7ab34aaf13efd87ddfb5 is not running
+[exit code: 1]
+
+$ docker exec flask python -c "import urllib.request;print(urllib.request.urlopen('http://localhost:5001/about').read().decode())"
+Error response from daemon: container 9de22b0f04420f80ff428a004fd059ce4e9f0cb2ee5a7ab34aaf13efd87ddfb5 is not running
+[exit code: 1]
+
+$ docker stop mysql redis flask && docker rm mysql redis flask
+mysql
+redis
+flask
+mysql
+redis
+flask
+[exit code: 0]
+
+$ docker network rm my-bridge-net
+my-bridge-net
+[exit code: 0]
