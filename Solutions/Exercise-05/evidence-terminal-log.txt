@@ -1,0 +1,163 @@
+Collecting docker
+  Downloading docker-7.2.0-py3-none-any.whl.metadata (3.8 kB)
+Requirement already satisfied: requests>=2.26.0 in /usr/lib/python3/dist-packages (from docker) (2.32.5)
+Requirement already satisfied: urllib3>=1.26.0 in /usr/lib/python3/dist-packages (from docker) (2.6.3)
+Requirement already satisfied: chardet>=3.0.2 in /usr/lib/python3/dist-packages (from requests>=2.26.0->docker) (5.2.0)
+Requirement already satisfied: idna<4,>=2.5 in /usr/lib/python3/dist-packages (from requests>=2.26.0->docker) (3.11)
+Requirement already satisfied: certifi>=2017.4.17 in /usr/lib/python3/dist-packages (from requests>=2.26.0->docker) (2026.1.4)
+Downloading docker-7.2.0-py3-none-any.whl (148 kB)
+Installing collected packages: docker
+Successfully installed docker-7.2.0
+
+$ docker build -t flask-apparmor .
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  10.75kB
+Step 1/6 : FROM python:3.8-slim
+3.8-slim: Pulling from library/python
+3971691a3637: Pulling fs layer
+a3f1dfe736c5: Pulling fs layer
+030d7bdc20a6: Pulling fs layer
+302e3ee49805: Pulling fs layer
+3971691a3637: Download complete
+c5d3722da06f: Download complete
+a3f1dfe736c5: Download complete
+fb001479687e: Download complete
+030d7bdc20a6: Download complete
+302e3ee49805: Download complete
+302e3ee49805: Pull complete
+030d7bdc20a6: Pull complete
+3971691a3637: Pull complete
+a3f1dfe736c5: Pull complete
+Digest: sha256:1d52838af602b4b5a831beb13a0e4d073280665ea7be7f69ce2382f29c5a613f
+Status: Downloaded newer image for python:3.8-slim
+ ---> 1d52838af602
+Step 2/6 : WORKDIR /app
+ ---> Running in 1f35f5670682
+ ---> Removed intermediate container 1f35f5670682
+ ---> 4b369d76e9f5
+Step 3/6 : COPY . /app
+ ---> 1891be301e82
+Step 4/6 : RUN pip install flask
+ ---> Running in 807ab21dea97
+Collecting flask
+  Downloading flask-3.0.3-py3-none-any.whl (101 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 101.7/101.7 kB 1.4 MB/s eta 0:00:00
+Collecting itsdangerous>=2.1.2
+  Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Collecting click>=8.1.3
+  Downloading click-8.1.8-py3-none-any.whl (98 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 98.2/98.2 kB 5.2 MB/s eta 0:00:00
+Collecting Jinja2>=3.1.2
+  Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 134.9/134.9 kB 6.2 MB/s eta 0:00:00
+Collecting Werkzeug>=3.0.0
+  Downloading werkzeug-3.0.6-py3-none-any.whl (227 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 228.0/228.0 kB 9.0 MB/s eta 0:00:00
+Collecting importlib-metadata>=3.6.0
+  Downloading importlib_metadata-8.5.0-py3-none-any.whl (26 kB)
+Collecting blinker>=1.6.2
+  Downloading blinker-1.8.2-py3-none-any.whl (9.5 kB)
+Collecting zipp>=3.20
+  Downloading zipp-3.20.2-py3-none-any.whl (9.2 kB)
+Collecting MarkupSafe>=2.0
+  Downloading MarkupSafe-2.1.5-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (26 kB)
+Installing collected packages: zipp, MarkupSafe, itsdangerous, click, blinker, Werkzeug, Jinja2, importlib-metadata, flask
+Successfully installed Jinja2-3.1.6 MarkupSafe-2.1.5 Werkzeug-3.0.6 blinker-1.8.2 click-8.1.8 flask-3.0.3 importlib-metadata-8.5.0 itsdangerous-2.2.0 zipp-3.20.2
+[91mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+[0m[91m
+[notice] A new release of pip is available: 23.0.1 -> 25.0.1
+[notice] To update, run: pip install --upgrade pip
+[0m ---> Removed intermediate container 807ab21dea97
+ ---> 4a6a3d05472c
+Step 5/6 : EXPOSE 5000
+ ---> Running in c5d8a4e2c645
+ ---> Removed intermediate container c5d8a4e2c645
+ ---> 23c4cbe44151
+Step 6/6 : CMD ["python", "app.py"]
+ ---> Running in d222610696a1
+ ---> Removed intermediate container d222610696a1
+ ---> 633b3830aee6
+Successfully built 633b3830aee6
+Successfully tagged flask-apparmor:latest
+[exit code: 0]
+
+$ cp my-apparmor-profile /etc/apparmor.d/my-apparmor-profile
+[exit code: 0]
+
+$ cat /etc/apparmor.d/my-apparmor-profile
+#include <tunables/global>
+
+/usr/bin/python3 {
+    # Deny access to sensitive system files
+    deny /etc/** r,
+    deny /var/** rw,
+
+    # Allow Flask app to bind to port 5000
+    network inet stream,
+
+    # Permissions to the application directory
+    /app/** rwk,
+
+    # Deny execution of any binaries in /bin or /usr/bin
+    deny /bin/** rmix,
+    deny /usr/bin/** rmix,
+
+    # Capability restrictions
+    capability net_bind_service,
+    deny capability sys_admin,
+}
+[exit code: 0]
+
+$ apparmor_parser -r /etc/apparmor.d/my-apparmor-profile
+Cache read/write disabled: interface file missing. (Kernel needs AppArmor 2.4 compatibility patch.)
+Warning: unable to find a suitable fs in /proc/mounts, is it mounted?
+Use --subdomainfs to override.
+[exit code: 1]
+
+$ aa-status
+apparmor filesystem is not mounted.
+apparmor module is loaded.
+[exit code: 3]
+
+$ docker run -d --name flask-apparmor --security-opt='apparmor=my-apparmor-profile' -p 5000:5000 flask-apparmor
+fa9524b1ad35269e6a0f9f317b6d7683337c6f9ed7ce59a8ac673bef570ff533
+[exit code: 0]
+
+$ docker inspect --format '{{.HostConfig.SecurityOpt}}' flask-apparmor
+[apparmor=my-apparmor-profile]
+[exit code: 0]
+
+$ docker rm -f flask-apparmor
+flask-apparmor
+[exit code: 0]
+
+$ python3 apply_apparmor.py
+Container started: 024d65a6146b
+AppArmor profile applied: ['apparmor=my-apparmor-profile']
+[exit code: 0]
+
+$ python3 test_restricted_actions.py
+Attempt to read /etc/passwd: Exit Code 0, Output: root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
+_apt:x:42:65534::/nonexistent:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+
+Attempt to execute /bin/bash: Exit Code 0, Output: 
+[exit code: 0]
