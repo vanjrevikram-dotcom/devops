@@ -1,0 +1,209 @@
+Requirement already satisfied: prometheus-client in /usr/local/lib/python3.14/dist-packages (0.26.0)
+prometheus
+grafana
+[Starting delivery_metrics.py in background]
+
+$ curl -s http://localhost:8000/metrics | head -n 30
+# HELP python_gc_objects_collected_total Objects collected during gc
+# TYPE python_gc_objects_collected_total counter
+python_gc_objects_collected_total{generation="0"} 0.0
+python_gc_objects_collected_total{generation="1"} 215.0
+python_gc_objects_collected_total{generation="2"} 0.0
+# HELP python_gc_objects_uncollectable_total Uncollectable objects found during GC
+# TYPE python_gc_objects_uncollectable_total counter
+python_gc_objects_uncollectable_total{generation="0"} 0.0
+python_gc_objects_uncollectable_total{generation="1"} 0.0
+python_gc_objects_uncollectable_total{generation="2"} 0.0
+# HELP python_gc_collections_total Number of times this generation was collected
+# TYPE python_gc_collections_total counter
+python_gc_collections_total{generation="0"} 0.0
+python_gc_collections_total{generation="1"} 2.0
+python_gc_collections_total{generation="2"} 0.0
+# HELP python_info Python platform information
+# TYPE python_info gauge
+python_info{implementation="CPython",major="3",minor="14",patchlevel="4",version="3.14.4"} 1.0
+# HELP process_virtual_memory_bytes Virtual memory size in bytes.
+# TYPE process_virtual_memory_bytes gauge
+process_virtual_memory_bytes 1.86212352e+08
+# HELP process_resident_memory_bytes Resident memory size in bytes.
+# TYPE process_resident_memory_bytes gauge
+process_resident_memory_bytes 2.6640384e+07
+# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1.79232863429e+09
+# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total 0.09
+[exit code: 0]
+
+$ curl -s http://localhost:8000/metrics | grep -E 'total_deliveries|pending_deliveries|on_the_way_deliveries|average_delivery_time'
+# HELP total_deliveries Total number of deliveries
+# TYPE total_deliveries gauge
+total_deliveries 67.0
+# HELP pending_deliveries Number of pending deliveries
+# TYPE pending_deliveries gauge
+pending_deliveries 14.0
+# HELP on_the_way_deliveries Number of deliveries on the way
+# TYPE on_the_way_deliveries gauge
+on_the_way_deliveries 12.0
+# HELP average_delivery_time Average delivery time in seconds
+# TYPE average_delivery_time summary
+average_delivery_time_count 3.0
+average_delivery_time_sum 120.18803733029077
+# HELP average_delivery_time_created Average delivery time in seconds
+# TYPE average_delivery_time_created gauge
+average_delivery_time_created 1.7923286350888476e+09
+[exit code: 0]
+Docker host bridge IP: 172.17.0.1
+
+$ docker run -d --name prometheus -p 9090:9090 -v /mnt/c/Users/vanjr/Desktop/devops/DevOps-Lab-main/Solutions/Exercise-06/delivery_monitoring/prometheus.yml:/etc/prometheus/prometheus.yml -v /mnt/c/Users/vanjr/Desktop/devops/DevOps-Lab-main/Solutions/Exercise-06/delivery_monitoring/alert_rules.yml:/etc/prometheus/alert_rules.yml prom/prometheus
+52931a2f31a9d7db6fab730df01b7b3a8de8971f0e7cfeb39a795f289040a8f5
+[exit code: 0]
+
+$ docker run -d --name grafana -p 3000:3000 grafana/grafana
+54bbae860a2f76fa5cba6f2a4bb1b7aa53644572843a2f8f74acd18e0c9a607b
+[exit code: 0]
+
+$ docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}'
+NAMES        IMAGE             STATUS          PORTS
+grafana      grafana/grafana   Up 10 seconds   0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp
+prometheus   prom/prometheus   Up 10 seconds   0.0.0.0:9090->9090/tcp, [::]:9090->9090/tcp
+[exit code: 0]
+
+$ curl -s http://localhost:9090/api/v1/targets | jq . || curl -s http://localhost:9090/api/v1/targets | head -c 500
+{
+  "status": "success",
+  "data": {
+    "activeTargets": [
+      {
+        "discoveredLabels": {
+          "__address__": "172.17.0.1:8000",
+          "__always_scrape_classic_histograms__": "false",
+          "__convert_classic_histograms_to_nhcb__": "false",
+          "__metrics_path__": "/metrics",
+          "__scheme__": "http",
+          "__scrape_interval__": "1m",
+          "__scrape_native_histograms__": "false",
+          "__scrape_timeout__": "10s",
+          "job": "delivery_service"
+        },
+        "labels": {
+          "instance": "172.17.0.1:8000",
+          "job": "delivery_service"
+        },
+        "scrapePool": "delivery_service",
+        "scrapeUrl": "http://172.17.0.1:8000/metrics",
+        "globalUrl": "http://172.17.0.1:8000/metrics",
+        "lastError": "",
+        "lastScrape": "0001-01-01T00:00:00Z",
+        "lastScrapeDuration": 0,
+        "health": "unknown",
+        "scrapeInterval": "1m",
+        "scrapeTimeout": "10s"
+      },
+      {
+        "discoveredLabels": {
+          "__address__": "localhost:9090",
+          "__always_scrape_classic_histograms__": "false",
+          "__convert_classic_histograms_to_nhcb__": "false",
+          "__metrics_path__": "/metrics",
+          "__scheme__": "http",
+          "__scrape_interval__": "1m",
+          "__scrape_native_histograms__": "false",
+          "__scrape_timeout__": "10s",
+          "job": "prometheus"
+        },
+        "labels": {
+          "instance": "localhost:9090",
+          "job": "prometheus"
+        },
+        "scrapePool": "prometheus",
+        "scrapeUrl": "http://localhost:9090/metrics",
+        "globalUrl": "http://52931a2f31a9:9090/metrics",
+        "lastError": "",
+        "lastScrape": "0001-01-01T00:00:00Z",
+        "lastScrapeDuration": 0,
+        "health": "unknown",
+        "scrapeInterval": "1m",
+        "scrapeTimeout": "10s"
+      }
+    ],
+    "droppedTargets": [],
+    "droppedTargetCounts": {
+      "delivery_service": 0,
+      "prometheus": 0
+    }
+  }
+}
+[exit code: 0]
+
+$ curl -s http://localhost:9090/api/v1/rules | jq . || curl -s http://localhost:9090/api/v1/rules | head -c 500
+{
+  "status": "success",
+  "data": {
+    "groups": [
+      {
+        "name": "delivery_alerts",
+        "file": "/etc/prometheus/alert_rules.yml",
+        "rules": [
+          {
+            "state": "unknown",
+            "name": "HighPendingDeliveries",
+            "query": "pending_deliveries > 10",
+            "duration": 15,
+            "keepFiringFor": 0,
+            "labels": {
+              "severity": "warning"
+            },
+            "annotations": {
+              "description": "Pending deliveries are above 10 for the last 15 second.",
+              "summary": "High pending deliveries"
+            },
+            "alerts": [],
+            "health": "unknown",
+            "evaluationTime": 0,
+            "lastEvaluation": "0001-01-01T00:00:00Z",
+            "type": "alerting"
+          },
+          {
+            "state": "unknown",
+            "name": "HighAverageDeliveryTime",
+            "query": "(average_delivery_time_sum / average_delivery_time_count) > 30",
+            "duration": 0,
+            "keepFiringFor": 0,
+            "labels": {
+              "severity": "critical"
+            },
+            "annotations": {
+              "description": "Average delivery time is above 30 seconds for the last 15 seconds.",
+              "summary": "High average delivery time"
+            },
+            "alerts": [],
+            "health": "unknown",
+            "evaluationTime": 0,
+            "lastEvaluation": "0001-01-01T00:00:00Z",
+            "type": "alerting"
+          }
+        ],
+        "interval": 60,
+        "limit": 0,
+        "evaluationTime": 0,
+        "lastEvaluation": "0001-01-01T00:00:00Z"
+      }
+    ]
+  }
+}
+[exit code: 0]
+[Waiting for Grafana to initialize...]
+
+$ curl -sI http://localhost:3000
+HTTP/1.1 302 Found
+Cache-Control: no-store
+Content-Type: text/html; charset=utf-8
+Location: /login
+X-Content-Type-Options: nosniff
+X-Frame-Options: deny
+X-Xss-Protection: 1; mode=block
+Date: Sun, 18 Oct 2026 13:04:23 GMT
+
+[exit code: 0]
