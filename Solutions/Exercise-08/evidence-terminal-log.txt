@@ -1,0 +1,52 @@
+
+$ cat hello-world.sh
+#!/bin/bash
+echo "Hello, Jenkins!"
+[exit code: 0]
+
+$ ./hello-world.sh
+Hello, Jenkins!
+[exit code: 0]
+
+$ git init
+Initialized empty Git repository in /mnt/c/Users/vanjr/Desktop/devops/DevOps-Lab-main/Solutions/Exercise-08/devops-sample-code/.git/
+[exit code: 0]
+
+$ git add hello-world.sh
+[exit code: 0]
+
+$ git status
+On branch main
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+	new file:   hello-world.sh
+
+[exit code: 0]
+
+$ git commit -m 'Add hello-world.sh'
+[main (root-commit) ab710a4] Add hello-world.sh
+ 1 file changed, 2 insertions(+)
+ create mode 100644 hello-world.sh
+[exit code: 0]
+
+$ git log -n 1 --stat
+commit ab710a4d261b7e33a043356c62700a209bf7ea54
+Author: DevOps Student <student@devops.lab>
+Date:   Sun Oct 18 13:15:52 2026 +0000
+
+    Add hello-world.sh
+
+ hello-world.sh | 2 ++
+ 1 file changed, 2 insertions(+)
+[exit code: 0]
+[Starting Jenkins container...]
+jenkins
+[Setting up HelloWorld workspace inside Jenkins]
+
+$ docker exec -u jenkins -w /var/jenkins_home/workspace/HelloWorld jenkins sh -xe hello-world.sh
+Hello, Jenkins!
++ echo Hello, Jenkins!
+[exit code: 0]

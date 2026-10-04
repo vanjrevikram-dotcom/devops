@@ -1,0 +1,53 @@
+
+$ cat hello-world.sh
+#!/bin/bash
+echo "Hello, Jenkins!"
+[exit code: 0]
+
+$ ./hello-world.sh
+Hello, Jenkins!
+[exit code: 0]
+
+$ git init
+Initialized empty Git repository in /mnt/c/Users/vanjr/Desktop/devops/DevOps-Lab-main/Solutions/Exercise-08/devops-sample-code/.git/
+[exit code: 0]
+
+$ git add hello-world.sh
+[exit code: 0]
+
+$ git status
+On branch main
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+	new file:   hello-world.sh
+
+[exit code: 0]
+
+$ git commit -m 'Add hello-world.sh'
+[main (root-commit) 8572b3e] Add hello-world.sh
+ 1 file changed, 2 insertions(+)
+ create mode 100644 hello-world.sh
+[exit code: 0]
+
+$ git log -n 1 --stat
+commit 8572b3eec850b66046458217d7c41fa527753758
+Author: DevOps Student <student@devops.lab>
+Date:   Sun Oct 18 13:14:41 2026 +0000
+
+    Add hello-world.sh
+
+ hello-world.sh | 2 ++
+ 1 file changed, 2 insertions(+)
+[exit code: 0]
+[Setting up HelloWorld workspace inside Jenkins]
+Error response from daemon: container 84c442cd93bebb130487eea6e61065798046837e42084b8f62f2dca65fbb50af is not running
+Error response from daemon: Could not find the file /var/jenkins_home/workspace/HelloWorld in container jenkins
+Error response from daemon: container 84c442cd93bebb130487eea6e61065798046837e42084b8f62f2dca65fbb50af is not running
+Error response from daemon: container 84c442cd93bebb130487eea6e61065798046837e42084b8f62f2dca65fbb50af is not running
+
+$ docker exec -u jenkins -w /var/jenkins_home/workspace/HelloWorld jenkins sh -xe hello-world.sh
+Error response from daemon: container 84c442cd93bebb130487eea6e61065798046837e42084b8f62f2dca65fbb50af is not running
+[exit code: 1]
