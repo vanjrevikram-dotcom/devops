@@ -1,0 +1,116 @@
+
+$ git init
+Initialized empty Git repository in /mnt/c/Users/vanjr/Desktop/devops/DevOps-Lab-main/Solutions/Exercise-09/python-flask-app/.git/
+[exit code: 0]
+
+$ git add .
+[exit code: 0]
+
+$ git status
+On branch main
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+	new file:   Jenkinsfile
+	new file:   __pycache__/app.cpython-314.pyc
+	new file:   __pycache__/test_app.cpython-314.pyc
+	new file:   app.py
+	new file:   requirements.txt
+	new file:   test_app.py
+
+[exit code: 0]
+
+$ git commit -m 'Initial commit of Python Flask app and pipeline'
+[main (root-commit) 73e2f4a] Initial commit of Python Flask app and pipeline
+ 6 files changed, 76 insertions(+)
+ create mode 100644 Jenkinsfile
+ create mode 100644 __pycache__/app.cpython-314.pyc
+ create mode 100644 __pycache__/test_app.cpython-314.pyc
+ create mode 100644 app.py
+ create mode 100644 requirements.txt
+ create mode 100644 test_app.py
+[exit code: 0]
+
+$ git log -n 1 --stat
+commit 73e2f4ae8cbe10631f9b0d700a3aa0c39c53df63
+Author: DevOps Student <student@devops.lab>
+Date:   Sun Oct 18 13:18:12 2026 +0000
+
+    Initial commit of Python Flask app and pipeline
+
+ Jenkinsfile                          |  52 +++++++++++++++++++++++++++++++++++
+ __pycache__/app.cpython-314.pyc      | Bin 0 -> 589 bytes
+ __pycache__/test_app.cpython-314.pyc | Bin 0 -> 1312 bytes
+ app.py                               |  10 +++++++
+ requirements.txt                     |   1 +
+ test_app.py                          |  13 +++++++++
+ 6 files changed, 76 insertions(+)
+[exit code: 0]
+
+$ python3 -m unittest discover -s .
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.007s
+
+OK
+Hello, Jenkins Multi-Stage Pipeline!
+[exit code: 0]
+[Step 8: Ensuring Jenkins is running and installing Python3 and Flask inside container]
+[Starting Jenkins container...]
+jenkins
+
+$ docker exec -u root jenkins apt-get update -y
+Hit:1 http://deb.debian.org/debian trixie InRelease
+Hit:2 http://deb.debian.org/debian trixie-updates InRelease
+Hit:3 http://deb.debian.org/debian-security trixie-security InRelease
+Reading package lists...
+[exit code: 0]
+
+$ docker exec -u root jenkins apt-get install -y python3 python3-pip python3-flask
+Reading package lists...
+Building dependency tree...
+Reading state information...
+python3 is already the newest version (3.13.5-1).
+python3-pip is already the newest version (25.1.1+dfsg-1).
+python3-flask is already the newest version (3.1.1-1+deb13u1).
+0 upgraded, 0 newly installed, 0 to remove and 5 not upgraded.
+[exit code: 0]
+[Running Multi-stage Pipeline: Stage Build]
+
+$ docker exec -u jenkins -w /var/jenkins_home/workspace/Python-MultiStage-Pipeline jenkins echo 'Creating virtual environment and installing dependencies...'
+Creating virtual environment and installing dependencies...
+[exit code: 0]
+[Running Multi-stage Pipeline: Stage Test]
+
+$ docker exec -u jenkins -w /var/jenkins_home/workspace/Python-MultiStage-Pipeline jenkins python3 -m unittest discover -s .
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.004s
+
+OK
+Hello, Jenkins Multi-Stage Pipeline!
+[exit code: 0]
+[Running Multi-stage Pipeline: Stage Deploy]
+
+$ docker exec -u jenkins -w /var/jenkins_home/workspace/Python-MultiStage-Pipeline jenkins bash -c 'mkdir -p /var/jenkins_home/workspace/Python-MultiStage-Pipeline/python-app-deploy && cp /var/jenkins_home/workspace/Python-MultiStage-Pipeline/app.py /var/jenkins_home/workspace/Python-MultiStage-Pipeline/python-app-deploy/'
+[exit code: 0]
+[Running Multi-stage Pipeline: Stage Run Application]
+
+$ docker exec -u jenkins -w /var/jenkins_home/workspace/Python-MultiStage-Pipeline jenkins bash -c 'nohup python3 /var/jenkins_home/workspace/Python-MultiStage-Pipeline/python-app-deploy/app.py > /var/jenkins_home/workspace/Python-MultiStage-Pipeline/python-app-deploy/app.log 2>&1 & echo $! > /var/jenkins_home/workspace/Python-MultiStage-Pipeline/python-app-deploy/app.pid'
+[exit code: 0]
+[Running Multi-stage Pipeline: Stage Test Application]
+
+$ docker exec -u jenkins -w /var/jenkins_home/workspace/Python-MultiStage-Pipeline jenkins python3 /var/jenkins_home/workspace/Python-MultiStage-Pipeline/test_app.py
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.004s
+
+OK
+Hello, Jenkins Multi-Stage Pipeline!
+[exit code: 0]
+[Pipeline completed successfully! Cleaning up background app process]
+
+$ docker exec -u jenkins -w /var/jenkins_home/workspace/Python-MultiStage-Pipeline jenkins bash -c 'kill -9 $(cat /var/jenkins_home/workspace/Python-MultiStage-Pipeline/python-app-deploy/app.pid) 2>/dev/null || true'
+[exit code: 0]
